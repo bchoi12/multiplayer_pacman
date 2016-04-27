@@ -213,11 +213,8 @@ io.sockets.on("connection", function(socket){
 		if (!logged_in) {
 			return;
 		}
-		User.findOne({ username: socket['username'] }, function(err, user) {
-			if (!err) {
-				user.wins = socket['wins'];
-				user.games = socket['games'];
-			}
+		User.update({username: socket['username']}, {wins: socket['wins'], games: socket['games']}, function(err, raw){
+			console.log(raw);
 		});
 
 		msgRoom(socket['room'], socket['username'] + ' has disconnected');
