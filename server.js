@@ -204,6 +204,7 @@ io.sockets.on("connection", function(socket){
 		}	
 		if (socket['room'] === landing) {
 			msg(socket, 'You must create a room first!');
+			return;
 		}
 		pacmanInit(socket['room'], socket);
 	});
@@ -214,8 +215,8 @@ io.sockets.on("connection", function(socket){
 		}
 		User.findOne({ username: socket['username'] }, function(err, user) {
 			if (!err) {
-				user['wins'] = socket['wins'];
-				user['games'] = socket['games'];
+				user.wins = socket['wins'];
+				user.games = socket['games'];
 			}
 		});
 
