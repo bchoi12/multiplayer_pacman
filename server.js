@@ -213,7 +213,7 @@ io.sockets.on("connection", function(socket){
 		if (!logged_in) {
 			return;
 		}
-		User.update({username: socket['username']}, {wins: socket['wins'], games: socket['games']}, function(err, raw){
+		User.findOneAndUpdate({username: socket['username']}, {wins: socket['wins'], games: socket['games']}, function(err, raw){
 			console.log(raw);
 		});
 
