@@ -117,13 +117,13 @@ io.sockets.on("connection", function(socket){
 					if (err) {
 						console.log(err + ' comp pass');
 					} else if (isMatch) {
+						socket['wins'] = user.wins;
+						socket['games'] = user.games;
 						if (!setUsername(socket, username2)) {
 							io.to(socket.id).emit('bad_login', 'User is already logged in!');
 							return;
 						}
 						logged_in = true;
-						socket['wins'] = user.wins;
-						socket['games'] = user.games;
 						io.to(socket.id).emit('logged_in', []);
 					} else {
 						io.to(socket.id).emit('bad_login', 'Wrong password!');
