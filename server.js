@@ -202,6 +202,9 @@ io.sockets.on("connection", function(socket){
 		if (!logged_in) {
 			return;
 		}	
+		if (socket['room'] === landing) {
+			msg(socket, 'You must create a room first!');
+		}
 		pacmanInit(socket['room'], socket);
 	});
 
@@ -527,6 +530,8 @@ function joinRoom(socket, room, pwd) {
 
 	if (pacman_room[room]) {
 		pacmanJoin(socket);
+	} else {
+		io.to(socket.id).emit('pacman_destroy', []);
 	}
 }
 
