@@ -726,11 +726,12 @@ function pacmanInit(room, socket) {
 	users = shuffle(users);
 	for(var i=0; i<users.length; ++i) {
 		pacmanInitPlayer(users[i]);
-		users[i]['lives'] = 3;
-		if (i % 3 === 2) {
+		if (i === 1 || i === 3 || i > 3 && i % 3 === 2) {
 			users[i]['ghost'] = true;
+			users[i]['lives'] = 3;
 		} else {
 			users[i]['ghost'] = false;
+			users[i]['lives'] = 2;
 		}
 	}
 
@@ -757,11 +758,12 @@ function pacmanJoin(socket) {
 
 	var users = getSockets(socket['room']);
 
-	socket['lives'] = 3;
-	if (users.length % 3 === 0) {
+	if (users.length === 1 || users.length === 3 || users.length % 3 === 2) {
 		socket['ghost'] = true;
+		socket['lives'] = 3;
 	} else {
 		socket['ghost'] = false;
+		socket['lives'] = 2;
 	}
 }
 
@@ -983,14 +985,14 @@ function pacmanCheckWin(room) {
 		pacman_room[room] = false;
 		clearInterval(pacman_intervals[room]);
 
-                var users = getSockets(room);
-                for (var i=0; i<users.length; ++i) {
-                        var socket = users[i];
-                        socket['games']++;
-                        if (socket['ghost']) {
-                                socket['wins']++;
-                        }
+        var users = getSockets(room);
+        for (var i=0; i<users.length; ++i) {
+                var socket = users[i];
+                socket['games']++;
+                if (socket['ghost']) {
+                        socket['wins']++;
                 }
+        }
 
 		return true;		
 	}
@@ -1002,14 +1004,14 @@ function pacmanCheckWin(room) {
 		pacman_room[room] = false;
 		clearInterval(pacman_intervals[room]);
 
-                var users = getSockets(room);
-                for (var i=0; i<users.length; ++i) {
-                        var socket = users[i];
-                        socket['games']++;
-                        if (!socket['ghost']) {
-                                socket['wins']++;
-                        }
+        var users = getSockets(room);
+        for (var i=0; i<users.length; ++i) {
+                var socket = users[i];
+                socket['games']++;
+                if (!socket['ghost']) {
+                        socket['wins']++;
                 }
+        }
 
 
 		return true;		
