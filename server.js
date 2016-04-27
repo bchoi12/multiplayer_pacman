@@ -122,8 +122,8 @@ io.sockets.on("connection", function(socket){
 							return;
 						}
 						logged_in = true;
-						socket['wins'] = user['wins'];
-						socket['games'] = user['games'];
+						socket['wins'] = user.wins;
+						socket['games'] = user.games;
 						io.to(socket.id).emit('logged_in', []);
 					} else {
 						io.to(socket.id).emit('bad_login', 'Wrong password!');
