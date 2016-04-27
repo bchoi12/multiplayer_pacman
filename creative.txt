@@ -1,0 +1,6 @@
+Our creative portion was a hangman game.
+
+If you enter !help into the textbox under the chat log you can view all the commands for hangman, basically any user within a room can start a game of hangman and then all users in that particular room can work together to guess what the word is.
+
+You can start the sever using
+node chat-server.js

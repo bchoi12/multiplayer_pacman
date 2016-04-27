@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>&#183;&#183;&#8226;&#183;&#183; &#5604; &#5603;</title>
+
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+      <script src="/socket.io/socket.io.js"></script>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+      <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato:regular,italic,bold,bolditalic" />
+      <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans:regular,italic,bold,bolditalic" />
+
+      
+      <style>
+         body {
+            font-family: 'Lato';
+         }
+
+         #container, #ui {
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-bottom: 50px;
+         }
+
+         #chatlog, #command {
+            width: 75%;
+            max-width: 75%;
+            padding: 7px;
+
+            border: 1px solid #aaa;
+         }
+
+         #chatlog {
+            white-space: normal;
+            overflow-x: hidden;
+         }
+
+         #stuff {
+            width: 20%;
+            border: 1px solid #aaa;
+            padding: 7px;
+         }
+
+         #users {
+            margin-bottom: 20px;
+         }
+
+         #chatlog, #stuff {
+            display: inline-block;
+            height: 500px;
+            overflow-y: scroll;
+         }
+
+         .from-server, .from-room, .from-hangman {
+            font-weight: bold;
+         }
+
+         .msg-room {
+            color: #777;
+         }
+
+         .from-hangman, .msg-hangman {
+            font-family: 'Courier';
+         }
+
+         .room-other:hover, .ban:hover, .kick:hover {
+            cursor: pointer;
+         }
+
+         #ui {
+            margin-top: 50px;
+            margin: 0 auto;
+         }
+
+         #ui input {
+            margin-bottom: 4px;
+         }
+
+         button {
+            min-width: 80px;
+         }
+
+         h1 {
+            text-align: center;
+         }
+
+         h3 {
+            margin: 0;
+         }
+
+         #pac-container {
+            display: block;
+            margin: 0 auto;
+            width: 75%;
+
+            text-align: center;
+            margin-top: 50px;
+            margin-bottom: 50px;
+         }
+
+         #pacman {
+            border: 1px solid #000;
+
+            display: inline-block;
+            display: none;
+         }
+
+         #thing {
+            display: inline-block;
+            padding-left: 40px;
+            display: none;
+         }
+
+         #winner:hover {
+            cursor: pointer;
+            text-decoration: underline;
+         }
+
+         #preload {
+            display: none;
+         }
+
+      </style>
+
+   </head>
+   <body>
+      <h1>&#183;&#183;&#8226;&#183;&#183; &#5604; &#5603;</h1>
+
+      <div id="pac-container">
+         <canvas id="pacman">
+         
+         </canvas>
+         
+         <div id="thing">
+         </div>
+         <h4 id="winner"></h4>
+         <button id="putto">PLAY PACMAN</button>
+      </div>
+
+      <div id="container">
+         <div id="chatlog"></div>
+         <div id="stuff">
+            <h3>Users</h3>
+            <div id="users"></div>
+            <h3>Rooms</h3>
+            <div id="rooms"></div>
+         </div>
+         <input type="text" id="command" maxlength="500" placeholder="Type !help for commands"/>
+      </div>
+
+      <div id="ui">
+         <h2>Create/Join Room</h2>
+         <input type="text" id="create_input" placeholder="Create Room"/>
+         <input type="password" id="create_pass" placeholder="Room Password"/>
+         <button id="butty">Create</button><br>
+         <input type="text" id="join_input" placeholder="Join Room"/>
+         <input type="password" id="join_pass" placeholder="Room Password"/>
+         <button id="butta">Join</button><br>
+      </div>
+
+      <div id="preload">
+         <img id="0" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/0.png">
+         <img id="1" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/1.png">
+         <img id="2" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/2.png">
+         <img id="3" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/3.png">
+         <img id="4" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/4.png">
+         <img id="5" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/5.png">
+         <img id="6" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/6.png">
+         <img id="7" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/7.png">
+         <img id="8" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/8.png">
+         <img id="9" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/9.png">
+         <img id="10" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/10.png">
+         <img id="11" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/11.png">
+         <img id="12" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/12.png">
+         <img id="13" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/13.png">
+         <img id="14" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/14.png">
+         <img id="15" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/15.png">
+         <img id="16" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/16.png">
+         <img id="17" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/17.png">
+         <img id="18" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/18.png">
+         <img id="19" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/19.png">
+         <img id="20" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/20.png">
+         <img id="21" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/21.png">
+         <img id="22" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/22.png">
+         <img id="23" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/23.png">
+         <img id="24" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/24.png">
+         <img id="25" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/25.png">
+         <img id="26" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/26.png">
+         <img id="27" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/27.png">
+         <img id="28" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/28.png">
+         <img id="29" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/29.png">
+         <img id="30" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/30.png">
+         <img id="31" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/31.png">
+         <img id="32" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/32.png">
+         <img id="33" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/33.png">
+         <img id="34" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/34.png">
+         <img id="35" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/35.png">
+         <img id="36" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/36.png">
+         <img id="37" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/37.png">
+         <img id="38" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/38.png">
+         <img id="39" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/39.png">
+         <img id="40" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/40.png">
+         <img id="41" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/41.png">
+         <img id="42" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/42.png">
+         <img id="43" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/43.png">
+         <img id="44" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/44.png">
+         <img id="45" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/45.png">
+      </div>
+
+      <script type ="text/javascript">
+
+         var info_room, info_user, info_creator;
+         var socketio = io.connect();
+         var pacman = false;
+
+
+         var board = [[1, 1, 1, 1, 1, 1],
+                      [1, 0, 0, 0, 0, 1],
+                      [1, 0, 2, 3, 0, 1],
+                      [1, 0, 2, 2, 0, 1],
+                      [1, 0, 0, 0, 0, 1],
+                      [1, 1, 1, 1, 1, 1]];
+
+         var players = {};
+
+
+         var c = document.getElementById('pacman');
+         var ctx = c.getContext("2d");
+
+         var blockWidth = 15;
+         var blockHeight = 15;
+         var width, height;
+
+         var pebble = false;
+
+
+         // log message to chat
+         socketio.on('new_message', function(data) {
+            $('#chatlog').append('<span style="color:' + data['color'] + '">' +  data['user'] + '</span>: ' + data['message'] + '<br>');1
+
+            $('#chatlog').scrollTop($('#chatlog')[0].scrollHeight);
+         });
+
+         // receive data on room
+         socketio.on('room_data', function(data) {
+            info_room = data['room'];
+            info_user = data['username'];
+            info_creator = data['creator'];
+         });
+
+         // server or room messages
+         socketio.on('log', function(data) {
+            $('#chatlog').append(data + '<br>');
+
+            $('#chatlog').scrollTop($('#chatlog')[0].scrollHeight);
+         });
+
+         // get the list of users
+         socketio.on('user_list', function(data){
+            $('#users').html('');
+            for (var i=0; i<data.length; ++i) {
+               if (!data[i]) {
+                  continue;
+               }
+
+               if (info_user && info_user === data[i]['user']) {
+                  $('#users').append('<span style="color:' + data[i]['color'] + '"class="user user-self">' + data[i]['user'] + ' <i title="you" class="fa fa-user"></i></span>');
+               } else {
+                  $('#users').append('<span style="color:' + data[i]['color'] + '"class="user user-other">' + data[i]['user'] + '</span>');
+               }
+
+               if (info_user && info_creator && info_user === info_creator && info_user !== data[i]['user']) {
+                  $('#users').append(' <span class="ban" id="ban-' + data[i]['user'] + '"><i title="ban" class="fa fa-ban"></i></span>');
+                  $('#users').append(' <span class="kick" id="kick-' + data[i]['user'] + '"><i title="kick" class="fa fa-user-times"></i></span>');
+
+                  $('#ban-' + data[i]['user']).on('click', function(){
+                     var ban = $(this).attr('id').split('-')[1];
+                     socketio.emit('ban', ban);
+                  });
+
+                  $('#kick-' + data[i]['user']).on('click', function(){
+                     var kick = $(this).attr('id').split('-')[1];
+                     socketio.emit('kick', kick);
+                  });
+               }
+
+               $('#users').append('<br>');
+            }
+         });
+
+         // get the list of rooms
+         socketio.on('room_list', function(data) {
+            $('#rooms').html('');
+            for(var i=0; i<data.length; ++i) {
+               if (!data[i]) {
+                  continue;
+               }
+               if (info_room && info_room === data[i]) {
+                  $('#rooms').append('<span class="room room-self" id="join-' + data[i] + '">' + data[i] + ' <i title="your room" class="fa fa-home"></i></span><br>');
+               } else {
+                  $('#rooms').append('<span class="room room-other" id="join-' + data[i] + '">' + data[i] + '</span><br>');
+
+                 $('#join-' + data[i]).on('click', function(){
+                     var room = $(this).attr('id').split('-')[1];
+                     socketio.emit('join_room', {'room': room, 'password': ''})
+                  });   
+               }
+            }
+         });
+
+         socketio.on('pacman_board_init', function(data) {
+            board = data;
+            boardInit();
+            drawBoard();
+         });
+
+         socketio.on('pacman_board', function(data) {
+            board = data;
+         });
+
+         socketio.on('pacman_players', function(data) {
+            players = data;
+
+            var str = '';
+            var str2 = '<br>';
+            for (p in players) {
+               if (players[p]['ghost']) {
+                  str2 += '<span style="color:' + players[p]['color'] + '">' + p + ' (' + players[p]['score'] + ') ';
+                  for (var i=0; i<players[p]['lives']; ++i) {
+                     str2 += '&#5603;';
+                  }
+                  str2 += '</span><br>';
+               } else {
+                  str += '<span style="color:' + players[p]['color'] + '">' + p + ' (' + players[p]['score'] + ') ';
+                  for (var i=0; i<players[p]['lives']; ++i) {
+                     str += '&#5607;';
+                  }
+                  str += '</span><br>';
+               }
+            }
+            $('#thing').html(str + str2);
+         });
+
+         socketio.on('pacman_update', function(data) {
+            drawBoard();
+         });
+
+         socketio.on('pacman_pebble', function(data) {
+            pebble = data;
+         });
+
+         socketio.on('pacman_win', function(data) {
+            $('#winner').html(data + ' win! Restart?');
+            $('#winner').show();
+            pacman = false;
+         });
+
+         // event handlers for the GUI thing
+         $('#butt').on('click', function(){
+
+            var msg = $('#message_input').val();
+            socketio.emit("new_message", msg);
+         });
+
+         $('#butto').on('click', function(){
+            var user = $('#user_input').val();
+            socketio.emit('set_username', user);
+         });
+
+         $('#butty').on('click', function(){
+            var room = $('#create_input').val();
+            var pwd = $('#create_pass').val();
+            socketio.emit('create_room', {'room': room, 'password': pwd});
+         });
+
+         $('#butta').on('click', function(){
+            var room = $('#join_input').val();
+            var pwd = $('#join_pass').val();
+            socketio.emit('join_room', {'room': room, 'password': pwd});
+         });
+
+         $('#putto').on('click', function(){
+            socketio.emit('pacman_start', []);
+         });
+
+         $('#winner').on('click', function(){
+            socketio.emit('pacman_start', []);
+         });
+
+         // textbox that accepts commands
+         $('#command').on('keydown', function(e){
+            if (e.keyCode === 13) {
+               var msg = $('#command').val();
+               if (msg.length > 500) {
+                  socketio.emit('new_message', msg);
+               } else {
+                  socketio.emit('new_message', msg);
+                  $('#command').val('');
+               }
+            }
+         });
+
+         $(document).on('keydown', function(e){
+            if (pacman) {
+               if (e.keyCode === 37) { 
+                  socketio.emit('dir', 'left');
+                  e.preventDefault();
+               }
+               if (e.keyCode === 38) { 
+                  socketio.emit('dir', 'up');
+                  e.preventDefault();
+               }
+               if (e.keyCode === 39) {
+                  socketio.emit('dir', 'right');
+                  e.preventDefault();
+               }
+               if (e.keyCode === 40) {
+                  socketio.emit('dir', 'down');
+                  e.preventDefault();
+               }               
+            }
+
+         });
+
+         // used to color code usernames
+         function hashCode(str) {
+            var hash = 0;
+            for (var i = 0; i < str.length; i++) {
+               hash = str.charCodeAt(i) + ((hash << 7) - 7*hash);
+            }
+            return hash;
+         } 
+
+         // used to colorcode usernames
+         function color(str) {
+            var i = hashCode(str);
+            var c = (i & 0x00FFFFFF)
+               .toString(16)
+               .toUpperCase();
+            return "#" + "00000".substring(0, 6 - c.length) + c;
+         }
+
+         function boardInit() {
+            width = board[0].length * blockWidth;
+            height = board.length * blockHeight;
+            document.getElementById('pacman').width = width;
+            document.getElementById('pacman').height = height;
+            pacman = true;
+
+            $('#pacman').css('display', 'inline-block');
+            $('#thing').css('display', 'inline-block');
+            $('#stuff').css('height', '200px');
+            $('#chatlog').css('height', '200px');
+            $('#putto').hide();
+            $('#winner').hide();
+         }
+
+         function boardDestroy() {
+            pacman = false;
+            $('#pacman').hide();
+            $('#thing').hide();
+            $('#stuff').css('height', '500px');
+            $('#chatlog').css('height', '500px');
+            $('#putto').show();
+            $('#winner').hide();
+         }
+
+         function drawBoard(playersOnly = false) {
+            if (!playersOnly) {
+               for(var i=0; i<board.length; ++i) {
+                  for(var j=0; j<board[i].length; ++j) {
+                     var x = blockWidth*j;
+                     var y = blockHeight*i;
+                     switch(board[i][j]) {
+                        case 0:
+                           ctx.drawImage(document.getElementById('39'), x, y);
+                           break;
+                        case 1:
+                           var left = (j > 0 && board[i][j-1] === 1);
+                           var right = (j < board[i].length-1 && board[i][j+1] === 1);
+                           var up = (i > 0 && board[i-1][j] === 1);
+                           var down = (i < board.length-1 && board[i+1][j] === 1);
+
+                           if (left && up && down && right) {
+                              ctx.drawImage(document.getElementById('23'), x, y);
+                           } else if (left && up && down) {
+                              ctx.drawImage(document.getElementById('4'), x, y);
+                           } else if (left && up && right) {
+                              ctx.drawImage(document.getElementById('6'), x, y);
+                           } else if (left && down && right) {
+                              ctx.drawImage(document.getElementById('5'), x, y);
+                           } else if (up && down && right) {
+                              ctx.drawImage(document.getElementById('3'), x, y);
+                           } else if (left && up) {
+                              ctx.drawImage(document.getElementById('9'), x, y);
+                           } else if (left && down) {
+                              ctx.drawImage(document.getElementById('10'), x, y);
+                           } else if (left && right) {
+                              ctx.drawImage(document.getElementById('2'), x, y);
+                           } else if (up && down) {
+                              ctx.drawImage(document.getElementById('1'), x, y);
+                           } else if (up && right) {
+                              ctx.drawImage(document.getElementById('8'), x, y);
+                           } else if (down && right) {
+                              ctx.drawImage(document.getElementById('7'), x, y);
+                           } else if (left) {
+                              ctx.drawImage(document.getElementById('12'), x, y);
+                           } else if (up) {
+                              ctx.drawImage(document.getElementById('11'), x, y);
+                           } else if (down) {
+                              ctx.drawImage(document.getElementById('13'), x, y);
+                           } else if (right) {
+                              ctx.drawImage(document.getElementById('14'), x, y);
+                           } else {
+                              ctx.drawImage(document.getElementById('24'), x, y);
+                           }
+                           break;
+                        case 2:
+                           ctx.drawImage(document.getElementById('33'), x, y);
+                           break;
+                        case 3:
+                           ctx.drawImage(document.getElementById('34'), x, y);
+                           break;
+                        case 4:
+                           ctx.drawImage(document.getElementById('0'), x, y);
+                           break;
+                        case 5:
+                           ctx.drawImage(document.getElementById('45'), x, y);
+                           break;
+                        default:
+                           break;
+                     }
+                  }
+               }
+            }
+         
+            for (p in players) {
+               var i = players[p]['x']; var j = players[p]['y']; var dir = players[p]['dir']; var ghost = players[p]['ghost']; var num = players[p]['num'];
+
+               var x = blockWidth*i;
+               var y = blockHeight*j;
+               
+               if (!ghost) {
+                  if (dir === 'left') {
+                     ctx.drawImage(document.getElementById('37'), x, y);
+                  } else if (dir === 'up') {
+                     ctx.drawImage(document.getElementById('36'), x, y);
+                  } else if (dir === 'down') {
+                     ctx.drawImage(document.getElementById('35'), x, y);
+                  } else {
+                     ctx.drawImage(document.getElementById('38'), x, y);
+                  }
+               } else if (pebble) {
+                  ctx.drawImage(document.getElementById('40'), x, y);
+               } else {
+                  var ghostnum = '' + (41 + (num % 4));
+                  ctx.drawImage(document.getElementById(ghostnum), x, y);
+               }
+
+               if (info_user === p) {
+                  ctx.fillStyle = "#FF0000";
+                  ctx.beginPath();
+                  ctx.moveTo(blockWidth*(i+0.5), blockHeight*(j+0.2));
+                  ctx.lineTo(blockWidth*(i+0.2), blockHeight*(j-0.4));
+                  ctx.lineTo(blockWidth*(i+0.8), blockHeight*(j-0.4));
+                  ctx.fill();
+               }
+            }
+         }
+
+      </script>
+   </body>
+</html>
