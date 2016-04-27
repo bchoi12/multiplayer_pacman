@@ -856,6 +856,7 @@ function pacmanStep(room) {
 	}
 
 	if (pacmanCheckWin(room)) {
+		updateUsers(room);
 		msgRoom(room, 'Game over!');
 	}
 
