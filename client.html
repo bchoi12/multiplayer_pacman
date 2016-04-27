@@ -396,7 +396,7 @@
       	});
 
                // event handlers for the GUI thing
-      	$('#gogo').on('submit', function(){
+      	$('#login').on('submit', function(){
       		var user = {'username' : $('#username').val(), 'password' : $('#password').val() };
       		socketio.emit('register', user);
             return false;
