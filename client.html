@@ -125,85 +125,87 @@
    <body>
       <h1>&#183;&#183;&#8226;&#183;&#183; &#5604; &#5603;</h1>
 
-      <div id="pac-container">
-         <canvas id="pacman">
-         
-         </canvas>
-         
-         <div id="thing">
+      <div id="game">
+         <div id="pac-container">
+            <canvas id="pacman">
+            
+            </canvas>
+            
+            <div id="thing">
+            </div>
+            <h4 id="winner"></h4>
+            <button id="putto">PLAY PACMAN</button>
          </div>
-         <h4 id="winner"></h4>
-         <button id="putto">PLAY PACMAN</button>
-      </div>
 
-      <div id="container">
-         <div id="chatlog"></div>
-         <div id="stuff">
-            <h3>Users</h3>
-            <div id="users"></div>
-            <h3>Rooms</h3>
-            <div id="rooms"></div>
+         <div id="container">
+            <div id="chatlog"></div>
+            <div id="stuff">
+               <h3>Users</h3>
+               <div id="users"></div>
+               <h3>Rooms</h3>
+               <div id="rooms"></div>
+            </div>
+            <input type="text" id="command" maxlength="500" placeholder="Type !help for commands"/>
          </div>
-         <input type="text" id="command" maxlength="500" placeholder="Type !help for commands"/>
-      </div>
 
-      <div id="ui">
-         <h2>Create/Join Room</h2>
-         <input type="text" id="create_input" placeholder="Create Room"/>
-         <input type="password" id="create_pass" placeholder="Room Password"/>
-         <button id="butty">Create</button><br>
-         <input type="text" id="join_input" placeholder="Join Room"/>
-         <input type="password" id="join_pass" placeholder="Room Password"/>
-         <button id="butta">Join</button><br>
-      </div>
+         <div id="ui">
+            <h2>Create/Join Room</h2>
+            <input type="text" id="create_input" placeholder="Create Room"/>
+            <input type="password" id="create_pass" placeholder="Room Password"/>
+            <button id="butty">Create</button><br>
+            <input type="text" id="join_input" placeholder="Join Room"/>
+            <input type="password" id="join_pass" placeholder="Room Password"/>
+            <button id="butta">Join</button><br>
+         </div>
 
-      <div id="preload">
-         <img id="0" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/0.png">
-         <img id="1" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/1.png">
-         <img id="2" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/2.png">
-         <img id="3" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/3.png">
-         <img id="4" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/4.png">
-         <img id="5" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/5.png">
-         <img id="6" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/6.png">
-         <img id="7" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/7.png">
-         <img id="8" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/8.png">
-         <img id="9" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/9.png">
-         <img id="10" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/10.png">
-         <img id="11" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/11.png">
-         <img id="12" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/12.png">
-         <img id="13" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/13.png">
-         <img id="14" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/14.png">
-         <img id="15" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/15.png">
-         <img id="16" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/16.png">
-         <img id="17" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/17.png">
-         <img id="18" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/18.png">
-         <img id="19" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/19.png">
-         <img id="20" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/20.png">
-         <img id="21" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/21.png">
-         <img id="22" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/22.png">
-         <img id="23" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/23.png">
-         <img id="24" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/24.png">
-         <img id="25" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/25.png">
-         <img id="26" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/26.png">
-         <img id="27" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/27.png">
-         <img id="28" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/28.png">
-         <img id="29" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/29.png">
-         <img id="30" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/30.png">
-         <img id="31" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/31.png">
-         <img id="32" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/32.png">
-         <img id="33" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/33.png">
-         <img id="34" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/34.png">
-         <img id="35" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/35.png">
-         <img id="36" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/36.png">
-         <img id="37" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/37.png">
-         <img id="38" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/38.png">
-         <img id="39" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/39.png">
-         <img id="40" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/40.png">
-         <img id="41" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/41.png">
-         <img id="42" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/42.png">
-         <img id="43" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/43.png">
-         <img id="44" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/44.png">
-         <img id="45" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/45.png">
+         <div id="preload">
+            <img id="0" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/0.png">
+            <img id="1" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/1.png">
+            <img id="2" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/2.png">
+            <img id="3" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/3.png">
+            <img id="4" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/4.png">
+            <img id="5" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/5.png">
+            <img id="6" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/6.png">
+            <img id="7" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/7.png">
+            <img id="8" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/8.png">
+            <img id="9" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/9.png">
+            <img id="10" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/10.png">
+            <img id="11" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/11.png">
+            <img id="12" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/12.png">
+            <img id="13" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/13.png">
+            <img id="14" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/14.png">
+            <img id="15" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/15.png">
+            <img id="16" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/16.png">
+            <img id="17" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/17.png">
+            <img id="18" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/18.png">
+            <img id="19" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/19.png">
+            <img id="20" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/20.png">
+            <img id="21" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/21.png">
+            <img id="22" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/22.png">
+            <img id="23" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/23.png">
+            <img id="24" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/24.png">
+            <img id="25" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/25.png">
+            <img id="26" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/26.png">
+            <img id="27" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/27.png">
+            <img id="28" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/28.png">
+            <img id="29" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/29.png">
+            <img id="30" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/30.png">
+            <img id="31" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/31.png">
+            <img id="32" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/32.png">
+            <img id="33" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/33.png">
+            <img id="34" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/34.png">
+            <img id="35" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/35.png">
+            <img id="36" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/36.png">
+            <img id="37" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/37.png">
+            <img id="38" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/38.png">
+            <img id="39" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/39.png">
+            <img id="40" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/40.png">
+            <img id="41" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/41.png">
+            <img id="42" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/42.png">
+            <img id="43" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/43.png">
+            <img id="44" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/44.png">
+            <img id="45" src="http://ec2-52-10-142-192.us-west-2.compute.amazonaws.com/p/45.png">
+         </div>
       </div>
 
       <script type ="text/javascript">
