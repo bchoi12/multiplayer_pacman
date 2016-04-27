@@ -781,6 +781,7 @@ function pacmanStep(room) {
 		}
 	}
 	
+	var update = false;
 	for(var i=0; i<users.length; ++i) {
 		var socket = users[i];
 
@@ -823,14 +824,18 @@ function pacmanStep(room) {
 			pacman_board[room][y][x] = 0;
 			socket['score']++;
 			pacman_dots[room]--;
-			pacmanEmitBoard(room);
+			update = true;
 		} else if (board[y][x] === 3 && !socket['ghost']) {
 			pacman_board[room][y][x] = 0;
 			socket['score']++;
 			pacman_pebble[room] = pacman_interval * pacman_pebble_steps;
 			pacmanEmitPebble(room);
-			pacmanEmitBoard(room);
+			update = true;
 		}
+	}
+
+	if (update) {
+		pacmanEmitBoard(room);
 	}
 
 	for (var i=0; i<users.length; ++i) {
