@@ -313,6 +313,10 @@
             drawBoard();
          });
 
+         socketio.on('pacman_destroy', function(data) {
+            boardDestroy();
+         });
+
          socketio.on('pacman_board', function(data) {
             board = data;
          });

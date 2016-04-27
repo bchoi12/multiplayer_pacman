@@ -404,6 +404,8 @@ function createRoom(socket, room, pwd) {
 	joinRoom(socket, room, pwd);
 
 	updateRooms();
+
+	io.to(socket.id).emit('pacman_destroy', []);
 }
 
 // join a room
