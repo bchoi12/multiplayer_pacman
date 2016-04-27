@@ -118,12 +118,38 @@
          #preload {
             display: none;
          }
+	
+	#game {
+		display: none;
+	}
+
+	#login {
+		margin: 0 auto;
+		display: block;
+		width: 80%;
+		text-align: center;
+	}
+
+	.stats {
+		display: none;
+	}
+
+	.user:hover .stats {
+		display: inline;
+	}
 
       </style>
 
    </head>
    <body>
       <h1>&#183;&#183;&#8226;&#183;&#183; &#5604; &#5603;</h1>
+
+	<div id="login">
+		<input type="text" id="username" placeholder="Username"><br>
+		<input type="password" id="password" placeholder="Password"><br>
+		<button id="gogo">Go</button>
+		<h4 id="login-error"></h4>
+	</div>
 
       <div id="game">
          <div id="pac-container">
@@ -235,6 +261,10 @@
          var pebble = false;
 
 
+	socketio.on('bad_login', function(data) {
+		$('#login-error').html(data);
+	});
+
          // log message to chat
          socketio.on('new_message', function(data) {
             $('#chatlog').append('<span style="color:' + data['color'] + '">' +  data['user'] + '</span>: ' + data['message'] + '<br>');1
@@ -265,7 +295,7 @@
                }
 
                if (info_user && info_user === data[i]['user']) {
-                  $('#users').append('<span style="color:' + data[i]['color'] + '"class="user user-self">' + data[i]['user'] + ' <i title="you" class="fa fa-user"></i></span>');
+                  $('#users').append('<span style="color:' + data[i]['color'] + '"class="user user-self">' + data[i]['user'] + ' <i title="you" class="fa fa-user"></i><span class="stats"><br>' + data[i]['wins'] + '<i class="fa fa-trophy" aria-hidden="true"></i> ' + data[i]['games'] + '<i class="fa fa-gamepad" aria-hidden="true"></i></span></span>');
                } else {
                   $('#users').append('<span style="color:' + data[i]['color'] + '"class="user user-other">' + data[i]['user'] + '</span>');
                }
@@ -360,7 +390,18 @@
             pacman = false;
          });
 
+	socketio.on('logged_in', function(data) {
+		$('#login').hide();
+		$('#game').show();
+	});
+
          // event handlers for the GUI thing
+	$('#gogo').on('click', function(){
+		var user = {'username' : $('#username').val(), 'password' : $('#password').val() };
+		socketio.emit('register', user);
+		console.log(user); 
+	});
+
          $('#butt').on('click', function(){
 
             var msg = $('#message_input').val();

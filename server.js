@@ -1,8 +1,11 @@
 // Require the packages we will use:
 var http = require("http"),
 	socketio = require("socket.io"),
-	fs = require("fs"); 
-	//mongoClient = require('mongodb').MongoClient;
+	fs = require("fs"),
+	MongoClient = require('mongodb').MongoClient,
+	assert = require('assert'),
+	mongoose = require('mongoose'),
+	User = require('./user-model');
 
 var rooms = new Set();
 var users = new Set();
@@ -63,16 +66,11 @@ var app = http.createServer(function(req, resp){
 
 app.listen(3456);
 
-/*
-// Connect to the db
-mongoClient.connect("mongodb://localhost:27017/pacman", function(err, db) {
-  if(!err) {
-    console.log("connected to mongodb");
-  } else {
-  	console.log(err);
-  }
+var url = 'mongodb://localhost:27017/pacman';
+mongoose.connect(url, function(err) {
+  assert.equal(null, err);
+  console.log("Successfully connected to mongodb");
 });
-*/
  
 // Do the Socket.IO magic:
 var io = socketio.listen(app);
@@ -83,17 +81,71 @@ io.sockets.on("connection", function(socket){
 	socket['room'] = '';
 	socket['color'] = '#000';
 	socket['num'] = id_count++;
+	socket['wins'] = 0;
+	socket['games'] = 0;
 
-	pacmanInitPlayer(socket);
+	var logged_in = false;
 
-	while(!setUsername(socket, 'user' + (count++))) {}
+	socket.on('register', function(data) {
+		var username2 = filter(data['username']);
+		var password2 = data['password'];
+
+		User.findOne({ username: username2 }, function(err, user) {
+			if (err) {
+				console.log(err + ' find one');
+			} else if (!user) {
+
+				if (!setUsername(socket, username2)) {
+					io.to(socket.id).emit('bad_login', 'User is already logged in!');	
+					return;
+				}
+
+				var newUser = new User({
+					username: username2,
+					password: password2,
+					games: 0,
+					wins: 0
+				});
+
+				newUser.save(function(err) { console.log('new user woo'); });
+				logged_in = true;
+				socket['wins'] = 0;
+				socket['games'] = 0;
+				io.to(socket.id).emit('logged_in', []);
+			} else {
+				user.comparePassword(password2, function(err, isMatch) {
+					if (err) {
+						console.log(err + ' comp pass');
+					} else if (isMatch) {
+						if (!setUsername(socket, username2)) {
+							io.to(socket.id).emit('bad_login', 'User is already logged in!');
+							return;
+						}
+						logged_in = true;
+						socket['wins'] = user['wins'];
+						socket['games'] = user['games'];
+						io.to(socket.id).emit('logged_in', []);
+					} else {
+						io.to(socket.id).emit('bad_login', 'Wrong password!');
+					}
+				});
+			}
+		});
+
+	});
 
 	socket.on('set_username', function(data) {
+		if (!logged_in) {
+			return;
+		}
 		data = filter(data);
 		setUsername(socket, data);
 	});
 
 	socket.on('create_room', function(data) {
+		if (!logged_in) {
+			return;
+		}
 		room = filter(data['room']);
 		pwd = data['password'];
 
@@ -101,6 +153,9 @@ io.sockets.on("connection", function(socket){
 	});
 
 	socket.on('join_room', function(data) {
+		if (!logged_in) {
+			return;
+		}	
 		room = filter(data['room']);
 		pwd = data['password'];
 
@@ -108,31 +163,59 @@ io.sockets.on("connection", function(socket){
 	});
  
 	socket.on('new_message', function(data) {
+		if (!logged_in) {
+			return;
+		}
 		data = msgFilter(data);
 		sendMessage(socket, data);
 	});
 
 	socket.on('get_users', function(data) {
+		if (!logged_in) {
+			return;
+		}
 		io.to(socket.id).emit('user_list', getClients(data));
 	});
 
 	socket.on('ban', function(data) {
+		if (!logged_in) {
+			return;
+		}
 		ban(socket, data);
 	});
 
 	socket.on('kick', function(data) {
+		if (!logged_in) {
+			return;
+		}
 		kick(socket, data);
 	});
 
 	socket.on('dir', function(data) {
+		if (!logged_in) {
+			return;
+		}
 		setDirection(socket, data);
 	});
 
 	socket.on('pacman_start', function(data){
+		if (!logged_in) {
+			return;
+		}	
 		pacmanInit(socket['room'], socket);
 	});
 
 	socket.on('disconnect', function() {
+		if (!logged_in) {
+			return;
+		}
+		User.findOne({ username: socket['username'] }, function(err, user) {
+			if (!err) {
+				user['wins'] = socket['wins'];
+				user['games'] = socket['games'];
+			}
+		});
+
 		msgRoom(socket['room'], socket['username'] + ' has disconnected');
 		users.delete(socket['username']);
 		socket.leave(socket['room']);
@@ -205,6 +288,7 @@ function setUsername(socket, username) {
 		}
 		users.add(username);
 		socket_map[username] = socket;
+		pacmanInitPlayer(socket);			
 
 		return true;
 	}	
@@ -535,7 +619,7 @@ function getClients(room) {
 
 	var users = [];
 	for (var id in io.sockets.adapter.rooms[room].sockets) {		
-		users.push({'user': io.sockets.connected[id]['username'], 'color': io.sockets.connected[id]['color']});
+		users.push({'user': io.sockets.connected[id]['username'], 'color': io.sockets.connected[id]['color'], 'wins': io.sockets.connected[id]['wins'], 'games': io.sockets.connected[id]['games']});
 	}
 
 	users.sort(function(a, b) {
@@ -565,8 +649,12 @@ function getSockets(room) {
 function cleanRoom(room) {
 	if (room !== landing) {
 		rooms.delete(room);
-		banned_users[room].clear();
-		banned_ids[room].clear();
+		if (banned_users[room]) {
+			banned_users[room].clear();
+		}
+		if (banned_ids[room]) {
+			banned_ids[room].clear();
+		}
 		creator[room] = '';
 		creator_user[room] = '';
 		pwds[room] = '';
@@ -853,6 +941,16 @@ function pacmanCheckWin(room) {
 
 		pacman_room[room] = false;
 		clearInterval(pacman_intervals[room]);
+
+		var users = getSockets(room);
+		for (var i=0; i<users.length; ++i) {
+			var socket = users[i];
+			socket['games']++;
+			if (!socket['ghost']) {
+				socket['wins']++;
+			}
+		}
+
 		return true;
 	} 
 
@@ -878,6 +976,16 @@ function pacmanCheckWin(room) {
 
 		pacman_room[room] = false;
 		clearInterval(pacman_intervals[room]);
+
+                var users = getSockets(room);
+                for (var i=0; i<users.length; ++i) {
+                        var socket = users[i];
+                        socket['games']++;
+                        if (socket['ghost']) {
+                                socket['wins']++;
+                        }
+                }
+
 		return true;		
 	}
 
@@ -887,6 +995,17 @@ function pacmanCheckWin(room) {
 
 		pacman_room[room] = false;
 		clearInterval(pacman_intervals[room]);
+
+                var users = getSockets(room);
+                for (var i=0; i<users.length; ++i) {
+                        var socket = users[i];
+                        socket['games']++;
+                        if (!socket['ghost']) {
+                                socket['wins']++;
+                        }
+                }
+
+
 		return true;		
 	}
 
