@@ -758,8 +758,10 @@ function pacmanJoin(socket) {
 
 	pacmanInitPlayer(socket);
 
+	var users = getSockets(socket['room']);
+
 	socket['lives'] = 3;
-	if (Math.random() < 0.4) {
+	if (users.length % 3 === 0) {
 		socket['ghost'] = true;
 	} else {
 		socket['ghost'] = false;
